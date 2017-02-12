@@ -8,12 +8,28 @@
 
 ***********************************************************/
 
+typedef struct {
+    char* course_num;
+    char* instructor_name;
+    int enrollment;
+    double course_quality;
+    double course_difficulty;
+    double instructor_quality;
+} course_info;
+
 typedef struct Node node;
 
 struct Node {
     course_info* value;
     node* next;
 };
+
+//int cmp_str(char* s, char* t) {
+//    return strcmp(s, t);
+//}
+int cmp_str(void* s, void* t) {
+    return strcmp((char*)s, (char*)t);
+}
 
 int add_first (node** head, course_info* course) {
     if (head == NULL || course == NULL) return -1; /* ERROR */
@@ -27,8 +43,8 @@ int add_first (node** head, course_info* course) {
     if (new_node->value == NULL) return 0; /* Failed to malloc space */
     
     /* assign new head of the linked list */
-    new_value->next = *head;
-    *head = new_value;
+    new_node->next = *head;
+    *head = new_node;
     return 1;
 }
 
@@ -58,26 +74,6 @@ int list_size(node* head) {
     return size;
 }
 
-void sort_by_course_num(node* head) {
-    
-}
-
-void sort_by_instructor_name(node* head) {
-    
-}
-
-void sort_by_enrollment (node* head) {
-    
-}
-
-void sort_by_course_quality (node* head) {
-    
-}
-
-void sort_by_course_difficulty (node* head) {
-    
-}
-
-void sort_by_instructor_quality (node* head) {
+void sort(node* head, int (*compare)(void*, void*)) {
     
 }
