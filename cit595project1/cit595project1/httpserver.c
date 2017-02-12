@@ -16,6 +16,8 @@
 #include <string.h>
 #include "linkedlist.h"
 
+node* read_file();
+
 int start_server(int PORT_NUMBER)
 {
     
@@ -117,6 +119,16 @@ int main(int argc, char *argv[])
         exit(-1);
     }
     
+    
+    node* list = read_file();
+    
+    
+    start_server(port_number);
+}
+
+node* read_file() {
+    node* head = malloc(sizeof(node));
+    
     FILE* raw_data = fopen("course_evals.txt", "r");
     char* line = malloc(sizeof(char) * 100);
     
@@ -124,7 +136,7 @@ int main(int argc, char *argv[])
     while((line = fgets(line, 100, raw_data)) != NULL) {
         course_info* info = malloc(sizeof(course_info));
         info->course_num = malloc(sizeof(char) * 15);
-        info->instructor = malloc(sizeof(char) * 30);
+        info->instructor_name = malloc(sizeof(char) * 30);
         
         // get course_num
         int i = 0;
@@ -138,11 +150,11 @@ int main(int argc, char *argv[])
         // get instructor_name
         int j = 0;
         while(line[i] != ',') {
-            info->instructor[j] = line[i];
+            info->instructor_name[j] = line[i];
             j++;
             i++;
         }
-        info->instructor[j] = '\0';
+        info->instructor_name[j] = '\0';
         i++;
         
         // get enrollment
@@ -190,11 +202,10 @@ int main(int argc, char *argv[])
         info->instructor_quality = atof(temp_for_enrollment);
         
         
-        
+        add_first(&head, info);
         free(temp_for_enrollment);
     }
     
-    
-    start_server(port_number);
+    return head;
 }
 
