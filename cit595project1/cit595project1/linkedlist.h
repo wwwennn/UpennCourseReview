@@ -77,3 +77,26 @@ int list_size(node* head) {
 void sort(node* head, int (*compare)(void*, void*)) {
     
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int compare_int(void* a, void* b) {
+    return *(int*)a - *(int*)b;
+}
+
+int compare_double(void* a, void* b) {
+    return (int) (*(double*)a - *(double*)b);
+}
