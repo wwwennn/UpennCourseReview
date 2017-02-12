@@ -27,7 +27,7 @@ int add_first (node** head, course_info* course) {
     if (new_node->value == NULL) return 0; /* Failed to malloc space */
     
     /* assign new head of the linked list */
-    new_value->next = *head;
+    new_node->next = *head;
     *head = new_value;
     return 1;
 }
@@ -80,4 +80,27 @@ void sort_by_course_difficulty (node* head) {
 
 void sort_by_instructor_quality (node* head) {
     
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int compare_int(void* a, void* b) {
+    return *(int*)a - *(int*)b;
+}
+
+int compare_double(void* a, void* b) {
+    return (int) *(double*)a - *(double*b);
 }
