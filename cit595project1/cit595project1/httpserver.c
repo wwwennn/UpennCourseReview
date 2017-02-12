@@ -57,6 +57,9 @@ int start_server(int PORT_NUMBER)
     printf("\nServer configured to listen on port %d\n", PORT_NUMBER);
     fflush(stdout);
     
+    /***********************
+      Keep the server running
+     ***********************/
     while(1){
         // 4. accept: wait here until we get a connection on that port
         int sin_size = sizeof(struct sockaddr_in);
