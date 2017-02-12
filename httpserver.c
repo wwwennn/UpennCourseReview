@@ -56,34 +56,36 @@ int start_server(int PORT_NUMBER)
       printf("\nServer configured to listen on port %d\n", PORT_NUMBER);
       fflush(stdout);
      
+     while(1) {
 
-      // 4. accept: wait here until we get a connection on that port
-      int sin_size = sizeof(struct sockaddr_in);
-      int fd = accept(sock, (struct sockaddr *)&client_addr,(socklen_t *)&sin_size); /* accept, wait here until got a file descriptor */
-      if (fd != -1) {
-	printf("Server got a connection from (%s, %d)\n", inet_ntoa(client_addr.sin_addr),ntohs(client_addr.sin_port));
-      
-	// buffer to read data into
-	char request[1024];
-	
-	// 5. recv: read incoming message (request) into buffer
-	int bytes_received = recv(fd,request,1024,0); /* 1024: max # of bytes */
-	// null-terminate the string
-	request[bytes_received] = '\0';
-	// print it to standard out
-	printf("This is the incoming request:\n%s\n", request);
+        // 4. accept: wait here until we get a connection on that port
+        int sin_size = sizeof(struct sockaddr_in);
+        int fd = accept(sock, (struct sockaddr *)&client_addr,(socklen_t *)&sin_size); /* accept, wait here until got a file descriptor */
+        if (fd != -1) {
+        printf("Server got a connection from (%s, %d)\n", inet_ntoa(client_addr.sin_addr),ntohs(client_addr.sin_port));
+        
+      	// buffer to read data into
+      	char request[1024];
+      	
+      	// 5. recv: read incoming message (request) into buffer
+      	int bytes_received = recv(fd,request,1024,0); /* 1024: max # of bytes */
+      	// null-terminate the string
+      	request[bytes_received] = '\0';
+      	// print it to standard out
+      	printf("This is the incoming request:\n%s\n", request);
 
-	// this is the message that we'll send back
-	char *reply = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n<html>Hello world!<p>This text is <b>bold</b>.</html>";
+      	// this is the message that we'll send back
+      	char *reply = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n<html>Hello world!<p>This text is <b>bold</b>.</html>";
 
-	// 6. send: send the outgoing message (response) over the socket
-	// note that the second argument is a char*, and the third is the number of chars	
-	send(fd, reply, strlen(reply), 0); /* server send bytes back to browser */
-	
-	// 7. close: close the connection
-	close(fd);
-	printf("Server closed connection\n");
+      	// 6. send: send the outgoing message (response) over the socket
+      	// note that the second argument is a char*, and the third is the number of chars	
+      	send(fd, reply, strlen(reply), 0); /* server send bytes back to browser */
+      	
+      	// 7. close: close the connection
+      	close(fd);
+      	printf("Server closed connection\n");
       }
+  }
 
       // 8. close: close the socket
       close(sock); /* shut down the server */
