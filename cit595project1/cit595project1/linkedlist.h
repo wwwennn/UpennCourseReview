@@ -28,6 +28,14 @@ int cmp_str(void* s, void* t) {
     return strcmp((char*)s, (char*)t);
 }
 
+int compare_int(void* a, void* b) {
+    return *(int*)a - *(int*)b;
+}
+
+int compare_double(void* a, void* b) {
+    return (int) (*(double*)a - *(double*)b);
+}
+
 int add_first (node** head, course_info* course) {
     if (head == NULL || course == NULL) return -1; /* ERROR */
     
@@ -73,27 +81,4 @@ int list_size(node* head) {
 
 void sort(node* head, int (*compare)(void*, void*)) {
     
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-int compare_int(void* a, void* b) {
-    return *(int*)a - *(int*)b;
-}
-
-int compare_double(void* a, void* b) {
-    return (int) (*(double*)a - *(double*)b);
 }
