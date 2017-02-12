@@ -44,7 +44,8 @@ int add_first (node** head, course_info* course) {
     if (new_node == NULL) return 0; /* Failed to malloc space */
     
     /* node's value is a pointer that points to a course_info */
-    new_node->value = malloc(sizeof(course_info*));
+//    new_node->value = malloc(sizeof(course_info));
+    new_node->value = course;
     if (new_node->value == NULL) return 0; /* Failed to malloc space */
     
     /* assign new head of the linked list */
@@ -88,14 +89,15 @@ void print_list(node* head) {
     else {
         printf("| Course # | Instructor Name | Enrollment | Course Quality | Course Difficulty | Instrucror Quality |\n");
         node* runner = head;
-        while (runner != NULL) {
-            printf("%s  %s  %d  %f  %f  %f\n",
+        while (runner != NULL && runner->value != NULL) {
+            printf("%s  %s  %d  %.2f  %.2f  %.2f\n",
                    runner->value->course_num,
                    runner->value->instructor_name,
                    runner->value->enrollment,
                    runner->value->course_quality,
                    runner->value->course_difficulty,
                    runner->value->instructor_quality);
+            runner = runner->next;
         }
     }
 }

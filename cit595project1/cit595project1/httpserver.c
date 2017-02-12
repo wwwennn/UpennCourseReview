@@ -111,32 +111,35 @@ int start_server(int PORT_NUMBER)
 int main(int argc, char *argv[])
 {
     // check the number of arguments
-    if (argc != 2) {
-        printf("\nUsage: %s [port_number]\n", argv[0]);
-        exit(-1);
-    }
-    
-    int port_number = atoi(argv[1]);
-    if (port_number <= 1024) {
-        printf("\nPlease specify a port number greater than 1024\n");
-        exit(-1);
-    }
+//    if (argc != 2) {
+//        printf("\nUsage: %s [port_number]\n", argv[0]);
+//        exit(-1);
+//    }
+//    
+//    int port_number = atoi(argv[1]);
+//    if (port_number <= 1024) {
+//        printf("\nPlease specify a port number greater than 1024\n");
+//        exit(-1);
+//    }
     
     
     node* list = read_file();
+    print_list(list);
     
-    
-    start_server(port_number);
+//    start_server(port_number);
 }
 
 node* read_file() {
     node* head = malloc(sizeof(node));
+    head->next = NULL;
     
-    FILE* raw_data = fopen("course_evals.txt", "r");
+    FILE* raw_data = fopen("/Users/zhongwen/Dropbox/Spring2017/595/project1/cit595project1/course_evals.txt", "r");
     char* line = malloc(sizeof(char) * 100);
+    fgets(line, 100, raw_data);
     
     
-    while((line = fgets(line, 100, raw_data)) != NULL) {
+    while(feof(raw_data) == 0) {
+//        printf("Enter");
         course_info* info = malloc(sizeof(course_info));
         info->course_num = malloc(sizeof(char) * 15);
         info->instructor_name = malloc(sizeof(char) * 30);
@@ -148,6 +151,7 @@ node* read_file() {
             i++;
         }
         info->course_num[i] = '\0';
+//        printf("%s\n", info->course_num);
         i++;
         
         // get instructor_name
@@ -207,8 +211,10 @@ node* read_file() {
         
         add_first(&head, info);
         free(temp_for_enrollment);
+        fgets(line, 100, raw_data);
     }
     
+//    head->next = NULL;
     return head;
 }
 
