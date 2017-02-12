@@ -24,9 +24,6 @@ struct Node {
     node* next;
 };
 
-//int cmp_str(char* s, char* t) {
-//    return strcmp(s, t);
-//}
 int cmp_str(void* s, void* t) {
     return strcmp((char*)s, (char*)t);
 }
