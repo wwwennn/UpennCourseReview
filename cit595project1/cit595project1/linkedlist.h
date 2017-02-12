@@ -82,3 +82,20 @@ int list_size(node* head) {
 void sort(node* head, int (*compare)(void*, void*)) {
     
 }
+
+void print_list(node* head) {
+    if (list_size(head) == 0) printf("The Linked List is empty.\n");
+    else {
+        printf("| Course # | Instructor Name | Enrollment | Course Quality | Course Difficulty | Instrucror Quality |\n");
+        node* runner = head;
+        while (runner != NULL) {
+            printf("%s  %s  %d  %f  %f  %f\n",
+                   runner->value->course_num,
+                   runner->value->instructor_name,
+                   runner->value->enrollment,
+                   runner->value->course_quality,
+                   runner->value->course_difficulty,
+                   runner->value->instructor_quality);
+        }
+    }
+}
