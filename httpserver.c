@@ -74,8 +74,25 @@ int start_server(int PORT_NUMBER)
       	// print it to standard out
       	printf("This is the incoming request:\n%s\n", request);
 
-      	// this is the message that we'll send back
-      	char *reply = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n<html>Hello world!<p>This text is <b>bold</b>.</html>";
+        /*********************************
+         *           READ FILE
+         *********************************/
+  
+         // char* reply = malloc(1024);
+         // strcat(reply, "HTTP/1.1 200 OK\nContent-Type: text/html\n\n<html>");
+         // char* content = malloc(sizeof(char) * 11);
+         // FILE* file = fopen("course_eval.txt", "r");
+         // fgets(content, 10, file);
+         // strcat(reply, content);
+         // strcat(reply, "</html>\0");
+
+          char *reply = malloc(1024);
+          strcat(reply, "HTTP/1.1 200 OK\nContent-Type: text/html\n\n<html>");
+          char* temp = malloc(sizeof(char) * 11);
+          FILE* file = fopen("course_evals.txt", "r");
+          fgets(temp, 10, file);
+          strcat(reply, temp);
+          strcat(reply, "</html>\0");
 
       	// 6. send: send the outgoing message (response) over the socket
       	// note that the second argument is a char*, and the third is the number of chars	
