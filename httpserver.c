@@ -15,6 +15,15 @@ http://www.binarii.com/files/papers/c_sockets.txt
 #include <errno.h>
 #include <string.h>
 
+typedef struct {
+    char* course_num;
+    char* instructor;
+    int enrollment;
+    double course_quality;
+    double course_difficulty;
+    double instructor_quality;
+} course_info;
+
 int start_server(int PORT_NUMBER)
 {
 
