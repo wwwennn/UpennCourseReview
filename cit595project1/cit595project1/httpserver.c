@@ -15,12 +15,52 @@
 #include <errno.h>
 #include <string.h>
 #include "linkedlist.h"
+#include <stdbool.h>
 
 node* read_file();
 void get_table(node*, char*);
 int start_server(int);
 void get_search_result(node*, char*, char*);
 void get_sort_result(node*, char*, char*);
+
+bool identify_request(char* request, char* target) {
+    if (request == NULL || target == NULL) return false;
+    int request_len = (int)strlen(request);
+    int target_len = (int)strlen(target);
+    
+    for (int i = 0; i + target_len < request_len; i++) {
+        char* substr = (char*) malloc(sizeof(char) * (target_len + 1));
+        strncpy(substr, request + i, target_len);
+        if (strcmp(substr, target) == 0) return true;
+        free(substr);
+    }
+    return false;
+}
+
+char* get_search_target(char* request) {
+    int request_len = (int)strlen(request);
+    char* substr = (char*) malloc(sizeof(char) * 100);
+    for (int i = 0; i < request_len; i++) {
+        if (request[i] == '=') {
+            strncpy(substr, request + i + 1, request_len - (i + 1));
+            return substr;
+        }
+    }
+    return NULL;
+}
+
+char* get_link_target(char* request) {
+    int request_len = (int)strlen(request);
+    char* substr = (char*) malloc(sizeof(char) * 100);
+    for (int i = 0; i < request_len; i++) {
+        if (request[i] == '/') {
+            strncpy(substr, request + i + 1, request_len - (i + 1));
+            return substr;
+        }
+    }
+    return NULL;
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -36,13 +76,6 @@ int main(int argc, char *argv[])
         exit(-1);
     }
     
-    
-//    node* list = read_file();
-////    sort(list, cmp_instructor_name);
-//    list = sort(list, cmp_course_num);
-////    print_list(list);
-//    char* table = malloc(sizeof(char) * 100000);
-//    get_table(list, table);
     
     start_server(port_number);
 }
@@ -246,38 +279,75 @@ int start_server(int PORT_NUMBER)
             // print it to standard out
             printf("This is the incoming request:\n%s\n", request);
             
+            /******************************
+             * extract request
+             ******************************/
+            
+            
             // this is the message that we'll send back
             
             node* list = read_file();
             //            //    sort(list, cmp_instructor_name);
-//            list = sort(list, cmp_course_num);
+            //            list = sort(list, cmp_course_num);
             //    print_list(list);
             char* table = malloc(sizeof(char) * 100000);
             get_table(list, table);
             
             
-//            char* keyword = malloc(sizeof(char) * 100);
-//            if(strcmp(keyword, "by_course_num") == 0) {
-//                list = sort(list, cmp_course_num);
-//                get_table(list, table);
-//            } else if(strcmp(keyword, "by_instructor_name") == 0) {
-//                list = sort(list, cmp_instructor_name);
-//                get_table(list, table);
-//            } else if(strcmp(keyword, "by_enrollment") == 0) {
-//                list = sort(list, compare_enrollment);
-//                get_table(list, table);
-//            } else if(strcmp(keyword, "by_course_quality") == 0) {
-//                list = sort(list, compare_course_quality);
-//                get_table(list, table);
-//            } else if(strcmp(keyword, "by_course_difficulty") == 0) {
-//                list = sort(list, compare_course_difficulty);
-//                get_table(list, table);
-//            } else if(strcmp(keyword, "by_instructor_quality") == 0) {
-//                list = sort(list, compare_instructor_quality);
-//                get_table(list, table);
-//            } else if(strcmp(keyword, "")) {
-//                get_search_result(list, table, keyword);
-//            }
+            char* link = NULL;
+            char* search = NULL;
+            bool is_search = identify_request(request, "search=");
+            if (is_search) {
+                search = get_search_target(request);
+                
+            } else {
+                link = get_link_target(request);
+                if(strcmp(link, "by_course_num") == 0) {
+                    list = sort(list, cmp_course_num);
+                    get_table(list, table);
+                } else if(strcmp(link, "by_instructor_name") == 0) {
+                    list = sort(list, cmp_instructor_name);
+                    get_table(list, table);
+                } else if(strcmp(link, "by_enrollment") == 0) {
+                    list = sort(list, compare_enrollment);
+                    get_table(list, table);
+                } else if(strcmp(link, "by_course_quality") == 0) {
+                    list = sort(list, compare_course_quality);
+                    get_table(list, table);
+                } else if(strcmp(link, "by_course_difficulty") == 0) {
+                    list = sort(list, compare_course_difficulty);
+                    get_table(list, table);
+                } else if(strcmp(link, "by_instructor_quality") == 0) {
+                    list = sort(list, compare_instructor_quality);
+                    get_table(list, table);
+                }
+            }
+            
+            
+            
+            
+            //            char* keyword = malloc(sizeof(char) * 100);
+            //            if(strcmp(keyword, "by_course_num") == 0) {
+            //                list = sort(list, cmp_course_num);
+            //                get_table(list, table);
+            //            } else if(strcmp(keyword, "by_instructor_name") == 0) {
+            //                list = sort(list, cmp_instructor_name);
+            //                get_table(list, table);
+            //            } else if(strcmp(keyword, "by_enrollment") == 0) {
+            //                list = sort(list, compare_enrollment);
+            //                get_table(list, table);
+            //            } else if(strcmp(keyword, "by_course_quality") == 0) {
+            //                list = sort(list, compare_course_quality);
+            //                get_table(list, table);
+            //            } else if(strcmp(keyword, "by_course_difficulty") == 0) {
+            //                list = sort(list, compare_course_difficulty);
+            //                get_table(list, table);
+            //            } else if(strcmp(keyword, "by_instructor_quality") == 0) {
+            //                list = sort(list, compare_instructor_quality);
+            //                get_table(list, table);
+            //            } else if(strcmp(keyword, "")) {
+            //                get_search_result(list, table, keyword);
+            //            }
             //            printf("%s", table);
             
             
