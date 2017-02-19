@@ -46,6 +46,10 @@ char* get_search_target(char* request) {
             return substr;
         }
     }
+    /* change spaces into +s */
+    for (int i = 0; i < strlen(substr); i++) {
+        if (substr[i] == ' ') *(substr + i) = '+';
+    }
     return NULL;
 }
 
@@ -291,19 +295,19 @@ int start_server(int PORT_NUMBER)
                 if(strcmp(link, "by_course_num HTTP/1.1") == 0) {
                     list = sort(list, cmp_course_num);
                     table = get_table(list);
-                } else if(strcmp(link, "by_instructor_name") == 0) {
+                } else if(strcmp(link, "by_instructor_name HTTP/1.1") == 0) {
                     list = sort(list, cmp_instructor_name);
                     table = get_table(list);
-                } else if(strcmp(link, "by_enrollment") == 0) {
+                } else if(strcmp(link, "by_enrollment HTTP/1.1") == 0) {
                     list = sort(list, compare_enrollment);
                     table = get_table(list);
-                } else if(strcmp(link, "by_course_quality") == 0) {
+                } else if(strcmp(link, "by_course_quality HTTP/1.1") == 0) {
                     list = sort(list, compare_course_quality);
                     table = get_table(list);
-                } else if(strcmp(link, "by_course_difficulty") == 0) {
+                } else if(strcmp(link, "by_course_difficulty HTTP/1.1") == 0) {
                     list = sort(list, compare_course_difficulty);
                     table = get_table(list);
-                } else if(strcmp(link, "by_instructor_quality") == 0) {
+                } else if(strcmp(link, "by_instructor_quality HTTP/1.1") == 0) {
                     list = sort(list, compare_instructor_quality);
                     table = get_table(list);
                 }
