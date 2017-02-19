@@ -17,118 +17,34 @@
 #include "linkedlist.h"
 
 node* read_file();
-
-int start_server(int PORT_NUMBER)
-{
-    
-    // structs to represent the server and client
-    struct sockaddr_in server_addr,client_addr;
-    
-    int sock; // socket descriptor
-    
-    // 1. socket: creates a socket descriptor that you later use to make other system calls
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-        perror("Socket");
-        exit(1);
-    }
-    int temp;
-    if (setsockopt(sock,SOL_SOCKET,SO_REUSEADDR,&temp,sizeof(int)) == -1) {
-        perror("Setsockopt");
-        exit(1);
-    }
-    
-    // configure the server
-    server_addr.sin_port = htons(PORT_NUMBER); // specify port number
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_addr.s_addr = INADDR_ANY;
-    bzero(&(server_addr.sin_zero),8);
-    
-    // 2. bind: use the socket and associate it with the port number
-    if (bind(sock, (struct sockaddr *)&server_addr, sizeof(struct sockaddr)) == -1) {
-        perror("Unable to bind");
-        exit(1);
-    }
-    
-    // 3. listen: indicates that we want to listen to the port to which we bound; second arg is number of allowed connections
-    if (listen(sock, 1) == -1) {
-        perror("Listen");
-        exit(1);
-    }
-    
-    // once you get here, the server is set up and about to start listening
-    printf("\nServer configured to listen on port %d\n", PORT_NUMBER);
-    fflush(stdout);
-    
-    /***********************
-      Keep the server running
-     ***********************/
-    while(1){
-        // 4. accept: wait here until we get a connection on that port
-        int sin_size = sizeof(struct sockaddr_in);
-        int fd = accept(sock, (struct sockaddr *)&client_addr,(socklen_t *)&sin_size);
-        if (fd != -1) {
-            printf("Server got a connection from (%s, %d)\n", inet_ntoa(client_addr.sin_addr),ntohs(client_addr.sin_port));
-            
-            // buffer to read data into
-            char request[1024];
-            
-            // 5. recv: read incoming message (request) into buffer
-            int bytes_received = recv(fd,request,1024,0);
-            // null-terminate the string
-            request[bytes_received] = '\0';
-            // print it to standard out
-            printf("This is the incoming request:\n%s\n", request);
-            
-            // this is the message that we'll send back
-            char *reply = malloc(1024);
-            strcat(reply, "HTTP/1.1 200 OK\nContent-Type: text/html\n\n<html>");
-            char* temp = malloc(sizeof(char) * 11);
-            FILE* file = fopen("course_evals.txt", "r");
-            fgets(temp, 10, file);
-            strcat(reply, temp);
-            strcat(reply, "</html>\0");
-            //	char *reply = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n<html>Hello world!<p>This text is <b>bold</b>.</html>";
-            
-            // 6. send: send the outgoing message (response) over the socket
-            // note that the second argument is a char*, and the third is the number of chars
-            send(fd, reply, strlen(reply), 0);
-            //      }
-            
-            // 7. close: close the connection
-            close(fd);
-            printf("Server closed connection\n");
-        }
-    }
-    // 8. close: close the socket
-    close(sock);
-    printf("Server shutting down\n");
-    
-    return 0;
-}
-
+void get_table(node*, char*);
+int start_server(int);
+void get_search_result(node*, char*, char*);
 
 
 int main(int argc, char *argv[])
 {
     // check the number of arguments
-//    if (argc != 2) {
-//        printf("\nUsage: %s [port_number]\n", argv[0]);
-//        exit(-1);
-//    }
-//    
-//    int port_number = atoi(argv[1]);
-//    if (port_number <= 1024) {
-//        printf("\nPlease specify a port number greater than 1024\n");
-//        exit(-1);
-//    }
+    if (argc != 2) {
+        printf("\nUsage: %s [port_number]\n", argv[0]);
+        exit(-1);
+    }
+    
+    int port_number = atoi(argv[1]);
+    if (port_number <= 1024) {
+        printf("\nPlease specify a port number greater than 1024\n");
+        exit(-1);
+    }
     
     
-    node* list = read_file();
-//    sort(list, cmp_instructor_name);
-    list = sort(list, cmp_course_num);
-    print_list(list);
+//    node* list = read_file();
+////    sort(list, cmp_instructor_name);
+//    list = sort(list, cmp_course_num);
+////    print_list(list);
+//    char* table = malloc(sizeof(char) * 100000);
+//    get_table(list, table);
     
-//    start_server(port_number);
+    start_server(port_number);
 }
 
 node* read_file() {
@@ -219,3 +135,187 @@ node* read_file() {
     return head;
 }
 
+void get_table(node* list, char* table) {
+    node* cur = list;
+    strcat(table, "<table>");
+    strcat(table, "<tr bgcolor = \"yellow\"><td>Course Number</td><td>Instructor</td><td width = \"80px\">Enrollment</td><td width = \"80px\">Course Quality</td><td width = \"80px\">Course Difficulty</td><td width = \"80px\">Instructor Quality</td></tr>");
+    while(cur != NULL) {
+        strcat(table, "<tr><td>");
+        strcat(table, cur->value->course_num);
+        strcat(table, "</td><td>");
+        strcat(table, cur->value->instructor_name);
+        strcat(table, "</td><td width = \"80px\">");
+        char* buffer = malloc(sizeof(char) * 10);
+        sprintf(buffer, "%d", cur->value->enrollment);
+        strcat(table, buffer);
+        strcat(table, "</td><td width = \"80px\">");
+        sprintf(buffer, "%.2f", cur->value->course_quality);
+        strcat(table, buffer);
+        strcat(table, "</td><td width = \"80px\">");
+        sprintf(buffer, "%.2f", cur->value->course_difficulty);
+        strcat(table, buffer);
+        strcat(table, "</td><td width = \"80px\">");
+        sprintf(buffer, "%.2f", cur->value->instructor_quality);
+        strcat(table, buffer);
+        strcat(table, "</td></tr>");
+        cur = cur->next;
+    }
+    strcat(table, "</table>\0");
+}
+
+int start_server(int PORT_NUMBER)
+{
+    
+    // structs to represent the server and client
+    struct sockaddr_in server_addr,client_addr;
+    
+    int sock; // socket descriptor
+    
+    // 1. socket: creates a socket descriptor that you later use to make other system calls
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+        perror("Socket");
+        exit(1);
+    }
+    int temp;
+    if (setsockopt(sock,SOL_SOCKET,SO_REUSEADDR,&temp,sizeof(int)) == -1) {
+        perror("Setsockopt");
+        exit(1);
+    }
+    
+    // configure the server
+    server_addr.sin_port = htons(PORT_NUMBER); // specify port number
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_addr.s_addr = INADDR_ANY;
+    bzero(&(server_addr.sin_zero),8);
+    
+    // 2. bind: use the socket and associate it with the port number
+    if (bind(sock, (struct sockaddr *)&server_addr, sizeof(struct sockaddr)) == -1) {
+        perror("Unable to bind");
+        exit(1);
+    }
+    
+    // 3. listen: indicates that we want to listen to the port to which we bound; second arg is number of allowed connections
+    if (listen(sock, 1) == -1) {
+        perror("Listen");
+        exit(1);
+    }
+    
+    // once you get here, the server is set up and about to start listening
+    printf("\nServer configured to listen on port %d\n", PORT_NUMBER);
+    fflush(stdout);
+    
+    /***********************
+     Keep the server running
+     ***********************/
+    while(1){
+        // 4. accept: wait here until we get a connection on that port
+        int sin_size = sizeof(struct sockaddr_in);
+        int fd = accept(sock, (struct sockaddr *)&client_addr,(socklen_t *)&sin_size);
+        if (fd != -1) {
+            printf("Server got a connection from (%s, %d)\n", inet_ntoa(client_addr.sin_addr),ntohs(client_addr.sin_port));
+            
+            // buffer to read data into
+            char request[1024];
+            
+            // 5. recv: read incoming message (request) into buffer
+            int bytes_received = recv(fd,request,1024,0);
+            // null-terminate the string
+            request[bytes_received] = '\0';
+            // print it to standard out
+            printf("This is the incoming request:\n%s\n", request);
+            
+            // this is the message that we'll send back
+            
+            node* list = read_file();
+            //            //    sort(list, cmp_instructor_name);
+            list = sort(list, cmp_course_num);
+            //    print_list(list);
+            char* table = malloc(sizeof(char) * 100000);
+            get_table(list, table);
+            //            printf("%s", table);
+            
+            
+            //            char *reply = malloc(1024);
+            char* reply = malloc(102000);
+            strcat(reply, "HTTP/1.1 200 OK\nContent-Type: text/html\n\n<html>");
+            strcat(reply, table);
+            //            strcat(reply, "</html>\0");
+            
+            //            char* temp = malloc(sizeof(char) * 11);
+            //            FILE* file = fopen("course_evals.txt", "r");
+            //            fgets(temp, 10, file);
+            //            strcat(reply, temp);
+            strcat(reply, "</html>\0");
+            
+            
+            
+            //	char *reply = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n<html>Hello world!<p>This text is <b>bold</b>.</html>";
+            
+            // 6. send: send the outgoing message (response) over the socket
+            // note that the second argument is a char*, and the third is the number of chars
+            send(fd, reply, strlen(reply), 0);
+            //      }
+            
+            // 7. close: close the connection
+            close(fd);
+            printf("Server closed connection\n");
+        }
+    }
+    // 8. close: close the socket
+    close(sock);
+    printf("Server shutting down\n");
+    
+    return 0;
+}
+
+void get_search_result(node* list, char* table, char* keyword) {
+    node* cur = list;
+    strcat(table, "<table>");
+    strcat(table, "<tr bgcolor = \"yellow\"><td>Course Number</td><td>Instructor</td><td width = \"80px\">Enrollment</td><td width = \"80px\">Course Quality</td><td width = \"80px\">Course Difficulty</td><td width = \"80px\">Instructor Quality</td></tr>");
+    
+    // 要把keyword以大写的形式传进来
+    while(cur != NULL) {
+        if(strcmp(cur->value->course_num, keyword) == 0) {
+            strcat(table, "<tr><td>");
+            strcat(table, cur->value->course_num);
+            strcat(table, "</td><td>");
+            strcat(table, cur->value->instructor_name);
+            strcat(table, "</td><td width = \"80px\">");
+            char* buffer = malloc(sizeof(char) * 10);
+            sprintf(buffer, "%d", cur->value->enrollment);
+            strcat(table, buffer);
+            strcat(table, "</td><td width = \"80px\">");
+            sprintf(buffer, "%.2f", cur->value->course_quality);
+            strcat(table, buffer);
+            strcat(table, "</td><td width = \"80px\">");
+            sprintf(buffer, "%.2f", cur->value->course_difficulty);
+            strcat(table, buffer);
+            strcat(table, "</td><td width = \"80px\">");
+            sprintf(buffer, "%.2f", cur->value->instructor_quality);
+            strcat(table, buffer);
+            strcat(table, "</td></tr>");
+        }
+        if(strcmp(cur->value->instructor_name, keyword) == 0) {
+            strcat(table, "<tr><td>");
+            strcat(table, cur->value->course_num);
+            strcat(table, "</td><td>");
+            strcat(table, cur->value->instructor_name);
+            strcat(table, "</td><td width = \"80px\">");
+            char* buffer = malloc(sizeof(char) * 10);
+            sprintf(buffer, "%d", cur->value->enrollment);
+            strcat(table, buffer);
+            strcat(table, "</td><td width = \"80px\">");
+            sprintf(buffer, "%.2f", cur->value->course_quality);
+            strcat(table, buffer);
+            strcat(table, "</td><td width = \"80px\">");
+            sprintf(buffer, "%.2f", cur->value->course_difficulty);
+            strcat(table, buffer);
+            strcat(table, "</td><td width = \"80px\">");
+            sprintf(buffer, "%.2f", cur->value->instructor_quality);
+            strcat(table, buffer);
+            strcat(table, "</td></tr>");
+        }
+        cur = cur->next;
+    }
+    strcat(table, "</table>\0");
+}
