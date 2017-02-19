@@ -16,12 +16,12 @@
 #include <string.h>
 #include "linkedlist.h"
 #include <stdbool.h>
+#include <ctype.h>
 
 node* read_file();
-void get_table(node*, char*);
+char* get_table(node*);
 int start_server(int);
-void get_search_result(node*, char*, char*);
-void get_sort_result(node*, char*, char*);
+char* get_search_result(node*, char*);
 
 bool identify_request(char* request, char* target) {
     if (request == NULL || target == NULL) return false;
@@ -168,8 +168,9 @@ node* read_file() {
     return head;
 }
 
-void get_table(node* list, char* table) {
+char* get_table(node* list) {
     node* cur = list;
+    char* table = malloc(sizeof(char) * 100000);
     strcat(table, "<table>");
     strcat(table, "<tr bgcolor = \"yellow\"><td>Course Number</td><td>Instructor</td><td width = \"80px\">Enrollment</td><td width = \"80px\">Course Quality</td><td width = \"80px\">Course Difficulty</td><td width = \"80px\">Instructor Quality</td></tr>");
     while(cur != NULL) {
@@ -194,28 +195,7 @@ void get_table(node* list, char* table) {
         cur = cur->next;
     }
     strcat(table, "</table>\0");
-}
-
-void get_sort_result(node* list, char* table, char* sort_key) {
-    if(strcmp(sort_key, "by_course_num") == 0) {
-        list = sort(list, cmp_course_num);
-        get_table(list, table);
-    } else if(strcmp(sort_key, "by_instructor_name") == 0) {
-        list = sort(list, cmp_instructor_name);
-        get_table(list, table);
-    } else if(strcmp(sort_key, "by_enrollment") == 0) {
-        list = sort(list, compare_enrollment);
-        get_table(list, table);
-    } else if(strcmp(sort_key, "by_course_quality") == 0) {
-        list = sort(list, compare_course_quality);
-        get_table(list, table);
-    } else if(strcmp(sort_key, "by_course_difficulty") == 0) {
-        list = sort(list, compare_course_difficulty);
-        get_table(list, table);
-    } else if(strcmp(sort_key, "by_instructor_quality") == 0) {
-        list = sort(list, compare_instructor_quality);
-        get_table(list, table);
-    }
+    return table;
 }
 
 int start_server(int PORT_NUMBER)
@@ -291,7 +271,7 @@ int start_server(int PORT_NUMBER)
             //            list = sort(list, cmp_course_num);
             //    print_list(list);
             char* table = malloc(sizeof(char) * 100000);
-            get_table(list, table);
+            table = get_table(list);
             
             
             char* link = NULL;
@@ -299,69 +279,44 @@ int start_server(int PORT_NUMBER)
             bool is_search = identify_request(request, "search=");
             if (is_search) {
                 search = get_search_target(request);
-                
+                printf("search: %s\n", search);
+                for(int i = 0; i < strlen(search); i++) {
+                    toupper(search[i]);
+                }
+//                strupr(search);
+                table = get_search_result(list, search);
             } else {
                 link = get_link_target(request);
-                if(strcmp(link, "by_course_num") == 0) {
+                printf("link: %s\n", link);
+                if(strcmp(link, "by_course_num HTTP/1.1") == 0) {
                     list = sort(list, cmp_course_num);
-                    get_table(list, table);
+                    table = get_table(list);
                 } else if(strcmp(link, "by_instructor_name") == 0) {
                     list = sort(list, cmp_instructor_name);
-                    get_table(list, table);
+                    table = get_table(list);
                 } else if(strcmp(link, "by_enrollment") == 0) {
                     list = sort(list, compare_enrollment);
-                    get_table(list, table);
+                    table = get_table(list);
                 } else if(strcmp(link, "by_course_quality") == 0) {
                     list = sort(list, compare_course_quality);
-                    get_table(list, table);
+                    table = get_table(list);
                 } else if(strcmp(link, "by_course_difficulty") == 0) {
                     list = sort(list, compare_course_difficulty);
-                    get_table(list, table);
+                    table = get_table(list);
                 } else if(strcmp(link, "by_instructor_quality") == 0) {
                     list = sort(list, compare_instructor_quality);
-                    get_table(list, table);
+                    table = get_table(list);
                 }
             }
             
             
             
+            char* reply = malloc(105000);
+            strcat(reply, "HTTP/1.1 200 OK\nContent-Type: text/html\n\n<html><head><title>Couese Evaluation Information</title></head>\n<body>\n<h3>Click the links below to get sorted results</h3>\n<ul>\n<li><a href=\"/by_course_num\">Sort By Course Number</a></li>\n<li><a href=\"/by_instructor_name\">Sort By Instructor Name</a></li>\n<li><a href=\"/by_enrollment\">Sort By Enrollment</a></li>\n<li><a href=\"/by_course_quality\">Sort By Course Quality</a></li>\n<li><a href=\"/by_course_difficulty\">Sort By Course Difficulty</a></li>\n<li><a href=\"/by_instructor_quality\">Sort By Instructor Quality</a></li>\n</ul>\n<h3>Enter a Course Number or an Instructor Name below to search aggregated result</h3>\n<form>\n<input type=\"text\" name=\"search\" placeholder=\"Search...\">\n<input type=\"submit\" value=\"Submit\">\n</form>\n");
+        
             
-            //            char* keyword = malloc(sizeof(char) * 100);
-            //            if(strcmp(keyword, "by_course_num") == 0) {
-            //                list = sort(list, cmp_course_num);
-            //                get_table(list, table);
-            //            } else if(strcmp(keyword, "by_instructor_name") == 0) {
-            //                list = sort(list, cmp_instructor_name);
-            //                get_table(list, table);
-            //            } else if(strcmp(keyword, "by_enrollment") == 0) {
-            //                list = sort(list, compare_enrollment);
-            //                get_table(list, table);
-            //            } else if(strcmp(keyword, "by_course_quality") == 0) {
-            //                list = sort(list, compare_course_quality);
-            //                get_table(list, table);
-            //            } else if(strcmp(keyword, "by_course_difficulty") == 0) {
-            //                list = sort(list, compare_course_difficulty);
-            //                get_table(list, table);
-            //            } else if(strcmp(keyword, "by_instructor_quality") == 0) {
-            //                list = sort(list, compare_instructor_quality);
-            //                get_table(list, table);
-            //            } else if(strcmp(keyword, "")) {
-            //                get_search_result(list, table, keyword);
-            //            }
-            //            printf("%s", table);
-            
-            
-            //            char *reply = malloc(1024);
-            char* reply = malloc(102000);
-            strcat(reply, "HTTP/1.1 200 OK\nContent-Type: text/html\n\n<html>");
             strcat(reply, table);
-            //            strcat(reply, "</html>\0");
-            
-            //            char* temp = malloc(sizeof(char) * 11);
-            //            FILE* file = fopen("course_evals.txt", "r");
-            //            fgets(temp, 10, file);
-            //            strcat(reply, temp);
-            strcat(reply, "</html>\0");
+            strcat(reply, "</body></html>\0");
             
             
             
@@ -384,7 +339,9 @@ int start_server(int PORT_NUMBER)
     return 0;
 }
 
-void get_search_result(node* list, char* table, char* keyword) {
+char* get_search_result(node* list, char* keyword) {
+    char* table = malloc(sizeof(char) * 100000);
+    
     node* cur = list;
     strcat(table, "<table>");
     strcat(table, "<tr bgcolor = \"yellow\"><td>Course Number</td><td>Instructor</td><td width = \"80px\">Enrollment</td><td width = \"80px\">Course Quality</td><td width = \"80px\">Course Difficulty</td><td width = \"80px\">Instructor Quality</td></tr>");
@@ -434,4 +391,5 @@ void get_search_result(node* list, char* table, char* keyword) {
         cur = cur->next;
     }
     strcat(table, "</table>\0");
+    return table;
 }
