@@ -23,6 +23,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		62D0732E1E511AF500F25CD3 /* course_evals.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = course_evals.txt; sourceTree = "<group>"; };
 		8026557E1E50C26B007E7347 /* cit595project1 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = cit595project1; sourceTree = BUILT_PRODUCTS_DIR; };
 		802655881E50C315007E7347 /* httpserver.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = httpserver.c; sourceTree = "<group>"; };
 		8026558A1E50C3BD007E7347 /* linkedlist.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = linkedlist.h; sourceTree = "<group>"; };
@@ -60,6 +61,7 @@
 			children = (
 				802655881E50C315007E7347 /* httpserver.c */,
 				8026558A1E50C3BD007E7347 /* linkedlist.h */,
+				62D0732E1E511AF500F25CD3 /* course_evals.txt */,
 			);
 			path = cit595project1;
 			sourceTree = "<group>";

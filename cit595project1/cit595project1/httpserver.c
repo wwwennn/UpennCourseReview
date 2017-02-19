@@ -124,22 +124,25 @@ int main(int argc, char *argv[])
     
     
     node* list = read_file();
+//    sort(list, cmp_instructor_name);
+    list = sort(list, cmp_course_num);
     print_list(list);
     
 //    start_server(port_number);
 }
 
 node* read_file() {
-    node* head = malloc(sizeof(node));
-    head->next = NULL;
+    node* head = NULL;
     
-    FILE* raw_data = fopen("/Users/zhongwen/Dropbox/Spring2017/595/project1/cit595project1/course_evals.txt", "r");
+    FILE* raw_data = fopen("course_evals.txt", "r");
+    if(raw_data == NULL) {
+        perror("Can't open the file");
+        exit(-1);
+    }
     char* line = malloc(sizeof(char) * 100);
     fgets(line, 100, raw_data);
     
-    
     while(feof(raw_data) == 0) {
-//        printf("Enter");
         course_info* info = malloc(sizeof(course_info));
         info->course_num = malloc(sizeof(char) * 15);
         info->instructor_name = malloc(sizeof(char) * 30);
@@ -151,7 +154,6 @@ node* read_file() {
             i++;
         }
         info->course_num[i] = '\0';
-//        printf("%s\n", info->course_num);
         i++;
         
         // get instructor_name
@@ -214,7 +216,6 @@ node* read_file() {
         fgets(line, 100, raw_data);
     }
     
-//    head->next = NULL;
     return head;
 }
 
