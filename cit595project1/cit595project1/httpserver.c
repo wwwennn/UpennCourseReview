@@ -15,8 +15,47 @@
 #include <errno.h>
 #include <string.h>
 #include "linkedlist.h"
+#include <stdbool.h>
 
 node* read_file();
+
+bool identify_request(char* request, char* target) {
+    if (request == NULL || target == NULL) return false;
+    int request_len = (int)strlen(request);
+    int target_len = (int)strlen(target);
+    
+    for (int i = 0; i + target_len < request_len; i++) {
+        char* substr = (char*) malloc(sizeof(char) * (target_len + 1));
+        strncpy(substr, request + i, target_len);
+        if (strcmp(substr, target) == 0) return true;
+        free(substr);
+    }
+    return false;
+}
+
+char* get_search_target(char* request) {
+    int request_len = (int)strlen(request);
+    char* substr = (char*) malloc(sizeof(char) * 100);
+    for (int i = 0; i < request_len; i++) {
+        if (request[i] == '=') {
+            strncpy(substr, request + i + 1, request_len - (i + 1));
+            return substr;
+        }
+    }
+    return NULL;
+}
+
+char* get_link_target(char* request) {
+    int request_len = (int)strlen(request);
+    char* substr = (char*) malloc(sizeof(char) * 100);
+    for (int i = 0; i < request_len; i++) {
+        if (request[i] == '/') {
+            strncpy(substr, request + i + 1, request_len - (i + 1));
+            return substr;
+        }
+    }
+    return NULL;
+}
 
 int start_server(int PORT_NUMBER)
 {
@@ -78,6 +117,18 @@ int start_server(int PORT_NUMBER)
             request[bytes_received] = '\0';
             // print it to standard out
             printf("This is the incoming request:\n%s\n", request);
+            
+            /******************************
+             * extract request
+             ******************************/
+            char* link = NULL;
+            char* search = NULL;
+            bool is_search = identify_request(request, "search=");
+            if (is_search) {
+                search = get_search_target(request);
+            } else {
+                link = get_link_target(request);
+            }
             
             // this is the message that we'll send back
             char *reply = malloc(1024);
