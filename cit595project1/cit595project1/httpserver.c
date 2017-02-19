@@ -20,7 +20,7 @@ node* read_file();
 void get_table(node*, char*);
 int start_server(int);
 void get_search_result(node*, char*, char*);
-
+void get_sort_result(node*, char*, char*);
 
 int main(int argc, char *argv[])
 {
@@ -163,6 +163,28 @@ void get_table(node* list, char* table) {
     strcat(table, "</table>\0");
 }
 
+void get_sort_result(node* list, char* table, char* sort_key) {
+    if(strcmp(sort_key, "by_course_num") == 0) {
+        list = sort(list, cmp_course_num);
+        get_table(list, table);
+    } else if(strcmp(sort_key, "by_instructor_name") == 0) {
+        list = sort(list, cmp_instructor_name);
+        get_table(list, table);
+    } else if(strcmp(sort_key, "by_enrollment") == 0) {
+        list = sort(list, compare_enrollment);
+        get_table(list, table);
+    } else if(strcmp(sort_key, "by_course_quality") == 0) {
+        list = sort(list, compare_course_quality);
+        get_table(list, table);
+    } else if(strcmp(sort_key, "by_course_difficulty") == 0) {
+        list = sort(list, compare_course_difficulty);
+        get_table(list, table);
+    } else if(strcmp(sort_key, "by_instructor_quality") == 0) {
+        list = sort(list, compare_instructor_quality);
+        get_table(list, table);
+    }
+}
+
 int start_server(int PORT_NUMBER)
 {
     
@@ -228,10 +250,34 @@ int start_server(int PORT_NUMBER)
             
             node* list = read_file();
             //            //    sort(list, cmp_instructor_name);
-            list = sort(list, cmp_course_num);
+//            list = sort(list, cmp_course_num);
             //    print_list(list);
             char* table = malloc(sizeof(char) * 100000);
             get_table(list, table);
+            
+            
+//            char* keyword = malloc(sizeof(char) * 100);
+//            if(strcmp(keyword, "by_course_num") == 0) {
+//                list = sort(list, cmp_course_num);
+//                get_table(list, table);
+//            } else if(strcmp(keyword, "by_instructor_name") == 0) {
+//                list = sort(list, cmp_instructor_name);
+//                get_table(list, table);
+//            } else if(strcmp(keyword, "by_enrollment") == 0) {
+//                list = sort(list, compare_enrollment);
+//                get_table(list, table);
+//            } else if(strcmp(keyword, "by_course_quality") == 0) {
+//                list = sort(list, compare_course_quality);
+//                get_table(list, table);
+//            } else if(strcmp(keyword, "by_course_difficulty") == 0) {
+//                list = sort(list, compare_course_difficulty);
+//                get_table(list, table);
+//            } else if(strcmp(keyword, "by_instructor_quality") == 0) {
+//                list = sort(list, compare_instructor_quality);
+//                get_table(list, table);
+//            } else if(strcmp(keyword, "")) {
+//                get_search_result(list, table, keyword);
+//            }
             //            printf("%s", table);
             
             
