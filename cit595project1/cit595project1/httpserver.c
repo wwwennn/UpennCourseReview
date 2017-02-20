@@ -274,7 +274,7 @@ int start_server(int PORT_NUMBER)
             //            //    sort(list, cmp_instructor_name);
             //            list = sort(list, cmp_course_num);
             //    print_list(list);
-            char* table = malloc(sizeof(char) * 100000);
+            char* table = malloc(70000);
             table = get_table(list);
             
             
@@ -312,7 +312,6 @@ int start_server(int PORT_NUMBER)
                     table = get_table(list);
                 }
             }
-            
             
             
             char* reply = malloc(105000);
