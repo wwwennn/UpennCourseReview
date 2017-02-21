@@ -3,10 +3,10 @@
 #include <string.h>
 
 /**********************************************************
-
+ 
  This is an implementation a Linked List of "course_info"
-
-***********************************************************/
+ 
+ ***********************************************************/
 
 
 // define the struct of course info
@@ -77,7 +77,7 @@ int add_first (node** head, course_info* course) {
     /* Linked List and course are both valid */
     node* new_node = malloc(sizeof(node));
     if (new_node == NULL) return 0; /* Failed to malloc space */
-//    new_node->next = NULL;
+    //    new_node->next = NULL;
     /* node's value is a pointer that points to a course_info */
     new_node->value = course;
     
