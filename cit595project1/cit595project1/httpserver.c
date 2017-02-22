@@ -79,55 +79,97 @@ int start_server(int PORT_NUMBER)
             char* table = malloc(100000);
             table = get_table(list);
             
-            char* link = NULL;
-            char* search = NULL;
+//            char* link = NULL;
+//            char* search = NULL;
+//            
+//            bool is_search = identify_request(request, "search=");
+//            if (is_search) {
+//                search = get_search_target(request);
+//                printf("User is searching for: %s", search);
+//                for (int i = 0; i < strlen(search); i++) toupper(search[i]);
+//                table = get_search_result(list, search);
+//            } else {
+//                link = get_link_target(request);
+//                printf("User wants sorting by: %s", link);
+//                if (strcmp(link, "by_course_num HTTP/1.1") == 0) {
+//                    printf("Enter1\n");
+//                    list = sort(list, cmp_course_num);
+//                    table = get_table(list);
+//                } else if (strcmp(link, "by_instructor_name HTTP/1.1") == 0) {
+//                    printf("Enter2\n");
+//                    list = sort(list, cmp_instructor_name);
+//                    table = get_table(list);
+//                } else if (strcmp(link, "by_enrollment HTTP/1.1") == 0) {
+//                    printf("Enter3\n");
+//                    list = sort(list, compare_enrollment);
+//                    table = get_table(list);
+//                } else if (strcmp(link, "by_course_quality HTTP/1.1") == 0) {
+//                    printf("Enter4\n");
+//                    list = sort(list, compare_course_quality);
+//                    table = get_table(list);
+//                } else if (strcmp(link, "by_course_difficulty HTTP/1.1") == 0) {
+//                    printf("Enter5\n");
+//                    list = sort(list, compare_course_difficulty);
+//                    table = get_table(list);
+//                } else if (strcmp(link, "by_instructor_quality HTTP/1.1") == 0) {
+//                    printf("Enter6\n");
+//                    list = sort(list, compare_instructor_quality);
+//                    table = get_table(list);
+//                }
+//            }
             
-            bool is_search = identify_request(request, "search=");
-            if (is_search) {
-                search = get_search_target(request);
-                printf("User is searching for: %s", search);
-                for (int i = 0; i < strlen(search); i++) toupper(search[i]);
-                table = get_search_result(list, search);
-            } else {
-                link = get_link_target(request);
-                printf("User wants sorting by: %s", link);
-                if (strcmp(link, "by_course_num HTTP/1.1") == 0) {
-                    list = sort(list, cmp_course_num);
-                    table = get_table(list);
-                } else if (strcmp(link, "by_instructor_name HTTP/1.1") == 0) {
-                    list = sort(list, cmp_instructor_name);
-                    table = get_table(list);
-                } else if (strcmp(link, "by_enrollment HTTP/1.1") == 0) {
-                    list = sort(list, compare_enrollment);
-                    table = get_table(list);
-                } else if (strcmp(link, "by_course_quality HTTP/1.1") == 0) {
-                    list = sort(list, compare_course_quality);
-                    table = get_table(list);
-                } else if (strcmp(link, "by_course_difficulty HTTP/1.1") == 0) {
-                    list = sort(list, compare_course_difficulty);
-                    table = get_table(list);
-                } else if (strcmp(link, "by_instructor_quality HTTP/1.1") == 0) {
-                    list = sort(list, compare_instructor_quality);
-                    table = get_table(list);
-                }
+            
+            char* link = malloc(25);
+            link = get_sortkey(request);
+            char* search = malloc(200);
+            search = get_searchkey(request);
+            
+            if(strcmp(link, "by_course_num") == 0) {
+                list = sort(list, cmp_course_num);
+                table = get_table(list);
+            } else if(strcmp(link, "by_instructor_name") == 0) {
+                list = sort(list, cmp_instructor_name);
+                table = get_table(list);
+            } else if(strcmp(link, "by_enrollment") == 0) {
+                list = sort(list, compare_enrollment);
+                table = get_table(list);
+            } else if (strcmp(link, "by_course_quality") == 0) {
+                list = sort(list, compare_course_quality);
+                table = get_table(list);
+            } else if (strcmp(link, "by_course_difficulty") == 0) {
+                list = sort(list, compare_course_difficulty);
+                table = get_table(list);
+            } else if (strcmp(link, "by_instructor_quality") == 0) {
+                list = sort(list, compare_instructor_quality);
+                table = get_table(list);
             }
             
-            strcat(reply, prefix);
+//            table = get_search_result(list, search);
+            if(strlen(search) > 0) {
+                printf("The search key is %s\n", search);
+                table = get_search_result(list, search);
+            }
+
+            
+//            printf("The search key is %s\n", search);
+            
+            strcpy(reply, prefix);
             strcat(reply, table);
             strcat(reply, postfix);
             
             /*******************************
              *   FIND START OF HTTP/1.1
              *******************************/
-            for (int k = 0; k < strlen(reply); k++) {
-                char substr[9];
-                strncpy(substr, reply, 8);
-                if (strcmp(substr, "HTTP/1.1") == 0) break;
-                reply++;
-            }
+//            for (int k = 0; k < strlen(reply); k++) {
+//                char substr[9];
+//                strncpy(substr, reply, 8);
+//                if (strcmp(substr, "HTTP/1.1") == 0) break;
+//                reply++;
+//            }
             
             send(fd, reply, strlen(reply), 0);
-            
+            free(link);
+            free(reply);
             close(fd);
             printf("Server closed connection\n");
         }
