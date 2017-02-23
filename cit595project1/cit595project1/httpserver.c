@@ -32,7 +32,8 @@ void* handle_request(void* p) {
      *   Prepare Prefix and Postfix
      *********************************/
     char* reply = malloc(105000);
-    char* prefix = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n<html><head><title>Couese Evaluation Information</title></head>\n<body>\n<h3>Click the links below to get sorted results</h3>\n<ul>\n<li><a href=\"/by_course_num\">Sort By Course Number</a></li>\n<li><a href=\"/by_instructor_name\">Sort By Instructor Name</a></li>\n<li><a href=\"/by_enrollment\">Sort By Enrollment</a></li>\n<li><a href=\"/by_course_quality\">Sort By Course Quality</a></li>\n<li><a href=\"/by_course_difficulty\">Sort By Course Difficulty</a></li>\n<li><a href=\"/by_instructor_quality\">Sort By Instructor Quality</a></li>\n</ul>\n<h3>Enter a Course Number or an Instructor Name below to search aggregated result</h3>\n<form>\n<input type=\"text\" name=\"search\" placeholder=\"Search...\">\n<input type=\"submit\" value=\"Submit\">\n</form>\n";
+    char* prefix = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n<html><head><title>Couese Evaluation Information</title></head>\n<body>\n<h3>Click the links below to get sorted results</h3>\n<ul>\n<li><a href=\"/by_course_num\">Sort By Course Number</a></li>\n<li><a href=\"/by_instructor_name\">Sort By Instructor Name</a></li>\n<li><a href=\"/by_enrollment\">Sort By Enrollment</a></li>\n<li><a href=\"/by_course_quality\">Sort By Course Quality</a></li>\n<li><a href=\"/by_course_difficulty\">Sort By Course Difficulty</a></li>\n<li><a href=\"/by_instructor_quality\">Sort By Instructor Quality</a></li>\n</ul>\n<h3>Average Instructor Quality: ";
+    char* search_box = "</h3>\n<h3>Enter a Course Number or an Instructor Name below to search aggregated result</h3>\n<form>\n<input type=\"text\" name=\"search\" placeholder=\"Search...\">\n<input type=\"submit\" value=\"Submit\">\n</form>\n";
     char* postfix = "</body></html>\0";
     
     
@@ -75,7 +76,12 @@ void* handle_request(void* p) {
     
     //            printf("The search key is %s\n", search);
     
+    double average_quality = average_instructor_quality(list);
+    char number[100];
+    sprintf(number, "%.2f", average_quality);
     strcpy(reply, prefix);
+    strcat(reply, number);
+    strcat(reply, search_box);
     strcat(reply, table);
     strcat(reply, postfix);
     
@@ -127,6 +133,7 @@ int start_server(int PORT_NUMBER)
     printf("\nServer configured to listen on port %d\n", PORT_NUMBER);
     fflush(stdout);
     arraylist* thread_list = al_initialize(5);
+    
     
     /*******************************************************************/
     

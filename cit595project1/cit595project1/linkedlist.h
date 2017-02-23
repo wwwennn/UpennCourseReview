@@ -197,5 +197,16 @@ node* sort(node* head, int (*compare)(void*, void*)) {
     return head;
 }
 
+double average_instructor_quality(node* head) {
+    double total = 0.0;
+    int count = 0;
+    node* runner = head;
+    while (runner != NULL) {
+        total += runner->value->instructor_quality;
+        count++;
+        runner = runner->next;
+    }
+    return total / count;
+}
 
 
