@@ -18,6 +18,7 @@
 #include <ctype.h>
 #include <pthread.h>
 #include "linkedlist.h"
+#include "arraylist.h"
 #include "functions.h"
 
 typedef struct {
@@ -146,9 +147,9 @@ int start_server(int PORT_NUMBER)
             server_info* info = malloc(sizeof(server_info));
             info->fd = fd;
             
-            pthread_t t;
+            pthread_t* t;
             al_add(thread_list, t);
-            pthread_create(&t, NULL, handle_request, info);
+            pthread_create(t, NULL, handle_request, info);
             
             
 //            /*********************************
