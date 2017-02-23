@@ -139,18 +139,22 @@ int start_server(int PORT_NUMBER)
              ********************************/
             printf("Server got a connection from (%s, %d)\n", inet_ntoa(client_addr.sin_addr),ntohs(client_addr.sin_port));
             
-            char request[1024];
-            int bytes_received = recv(fd,request,1024,0);
-            request[bytes_received] = '\0';
-            printf("This is the incoming request:\n%s\n", request);
-            
             server_info* info = malloc(sizeof(server_info));
             info->fd = fd;
             
-            pthread_t* t;
-            al_add(thread_list, t);
-            pthread_create(t, NULL, handle_request, info);
             
+//            char request[1024];
+//            int bytes_received = recv(fd,request,1024,0);
+            int bytes_received = recv(fd,info->request,1024,0);
+            info->request[bytes_received] = '\0';
+            printf("This is the incoming request:\n%s\n", info->request);
+            
+
+//            info->request = request;
+            
+            pthread_t* t = malloc(sizeof(pthread_t));
+            pthread_create(t, NULL, handle_request, info);
+            al_add(thread_list, t);
             
 //            /*********************************
 //             *   Prepare Prefix and Postfix
@@ -228,7 +232,7 @@ int start_server(int PORT_NUMBER)
     
     for(int i = 0; i < thread_list->size; i++) {
         void* r;
-        pthread_join(thread_list->value + i, &r);
+        pthread_join(*(*(thread_list->values) + i), &r);
     }
     
     return 0;

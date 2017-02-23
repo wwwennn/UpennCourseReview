@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 
 /**********************************************************
  
@@ -135,6 +136,10 @@ void print_list(node* head) {
 }
 
 node* sort(node* head, int (*compare)(void*, void*)) {
+//    sleep(5);
+    printf("I'll be back in 10 seconds...\n\n");
+    sleep(3);
+    printf("I'm back!");
     if(head == NULL || head->next == NULL) return head;
     
     node* head1 = head;
