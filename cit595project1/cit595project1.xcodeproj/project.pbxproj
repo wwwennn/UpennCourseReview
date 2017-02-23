@@ -28,6 +28,7 @@
 		802655881E50C315007E7347 /* httpserver.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = httpserver.c; sourceTree = "<group>"; };
 		8026558A1E50C3BD007E7347 /* linkedlist.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = linkedlist.h; sourceTree = "<group>"; };
 		8096E37D1E5BE23E007AF810 /* functions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = functions.h; sourceTree = "<group>"; };
+		80FD89451E5F7FC7006E038F /* arraylist.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = arraylist.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,6 +65,7 @@
 				8026558A1E50C3BD007E7347 /* linkedlist.h */,
 				62D0732E1E511AF500F25CD3 /* course_evals.txt */,
 				8096E37D1E5BE23E007AF810 /* functions.h */,
+				80FD89451E5F7FC7006E038F /* arraylist.h */,
 			);
 			path = cit595project1;
 			sourceTree = "<group>";

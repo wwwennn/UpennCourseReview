@@ -16,9 +16,86 @@
 #include <string.h>
 #include <stdbool.h>
 #include <ctype.h>
-
+#include <pthread.h>
 #include "linkedlist.h"
+#include "arraylist.h"
 #include "functions.h"
+
+typedef struct {
+    int fd;
+    char request[1024];
+} server_info;
+
+void* handle_request(void* p) {
+    server_info* info = (server_info*) p;
+    /*********************************
+     *   Prepare Prefix and Postfix
+     *********************************/
+    char* reply = malloc(105000);
+    char* prefix = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n<html><head><title>Couese Evaluation Information</title></head>\n<body>\n<h3>Click the links below to get sorted results</h3>\n<ul>\n<li><a href=\"/by_course_num\">Sort By Course Number</a></li>\n<li><a href=\"/by_instructor_name\">Sort By Instructor Name</a></li>\n<li><a href=\"/by_enrollment\">Sort By Enrollment</a></li>\n<li><a href=\"/by_course_quality\">Sort By Course Quality</a></li>\n<li><a href=\"/by_course_difficulty\">Sort By Course Difficulty</a></li>\n<li><a href=\"/by_instructor_quality\">Sort By Instructor Quality</a></li>\n</ul>\n<h3>Enter a Course Number or an Instructor Name below to search aggregated result</h3>\n<form>\n<input type=\"text\" name=\"search\" placeholder=\"Search...\">\n<input type=\"submit\" value=\"Submit\">\n</form>\n";
+    char* postfix = "</body></html>\0";
+    
+    
+    node* list = read_file();
+    char* table = malloc(100000);
+    table = get_table(list);
+    
+    
+    char* link = malloc(25);
+    link = get_sortkey(info->request);
+    char* search = malloc(200);
+    search = get_searchkey(info->request);
+    
+    if(strcmp(link, "by_course_num") == 0) {
+        list = sort(list, cmp_course_num);
+        table = get_table(list);
+    } else if(strcmp(link, "by_instructor_name") == 0) {
+        list = sort(list, cmp_instructor_name);
+        table = get_table(list);
+    } else if(strcmp(link, "by_enrollment") == 0) {
+        list = sort(list, compare_enrollment);
+        table = get_table(list);
+    } else if (strcmp(link, "by_course_quality") == 0) {
+        list = sort(list, compare_course_quality);
+        table = get_table(list);
+    } else if (strcmp(link, "by_course_difficulty") == 0) {
+        list = sort(list, compare_course_difficulty);
+        table = get_table(list);
+    } else if (strcmp(link, "by_instructor_quality") == 0) {
+        list = sort(list, compare_instructor_quality);
+        table = get_table(list);
+    }
+    
+    //            table = get_search_result(list, search);
+    if(strlen(search) > 0) {
+        printf("The search key is %s\n", search);
+        table = get_search_result(list, search);
+    }
+    
+    
+    //            printf("The search key is %s\n", search);
+    
+    strcpy(reply, prefix);
+    strcat(reply, table);
+    strcat(reply, postfix);
+    
+    /*******************************
+     *   FIND START OF HTTP/1.1
+     *******************************/
+    //            for (int k = 0; k < strlen(reply); k++) {
+    //                char substr[9];
+    //                strncpy(substr, reply, 8);
+    //                if (strcmp(substr, "HTTP/1.1") == 0) break;
+    //                reply++;
+    //            }
+    
+    send(info->fd, reply, strlen(reply), 0);
+    free(link);
+    free(reply);
+    close(info->fd);
+    printf("Server closed connection\n");
+    return NULL;
+}
 
 int start_server(int PORT_NUMBER)
 {
@@ -49,6 +126,8 @@ int start_server(int PORT_NUMBER)
     }
     printf("\nServer configured to listen on port %d\n", PORT_NUMBER);
     fflush(stdout);
+    arraylist* thread_list = al_initialize(5);
+    
     /*******************************************************************/
     
     while(1) {
@@ -65,118 +144,92 @@ int start_server(int PORT_NUMBER)
             request[bytes_received] = '\0';
             printf("This is the incoming request:\n%s\n", request);
             
-            /*********************************
-             *   Prepare Prefix and Postfix
-             *********************************/
-            char* reply = malloc(105000);
-            char* prefix = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n<html><head><title>Couese Evaluation Information</title></head>\n<body>\n<h3>Click the links below to get sorted results</h3>\n<ul>\n<li><a href=\"/by_course_num\">Sort By Course Number</a></li>\n<li><a href=\"/by_instructor_name\">Sort By Instructor Name</a></li>\n<li><a href=\"/by_enrollment\">Sort By Enrollment</a></li>\n<li><a href=\"/by_course_quality\">Sort By Course Quality</a></li>\n<li><a href=\"/by_course_difficulty\">Sort By Course Difficulty</a></li>\n<li><a href=\"/by_instructor_quality\">Sort By Instructor Quality</a></li>\n</ul>\n<h3>Enter a Course Number or an Instructor Name below to search aggregated result</h3>\n<form>\n<input type=\"text\" name=\"search\" placeholder=\"Search...\">\n<input type=\"submit\" value=\"Submit\">\n</form>\n";
-            char* postfix = "</body></html>\0";
+            server_info* info = malloc(sizeof(server_info));
+            info->fd = fd;
+            
+            pthread_t* t;
+            al_add(thread_list, t);
+            pthread_create(t, NULL, handle_request, info);
+            
+            
+//            /*********************************
+//             *   Prepare Prefix and Postfix
+//             *********************************/
+//            char* reply = malloc(105000);
+//            char* prefix = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n<html><head><title>Couese Evaluation Information</title></head>\n<body>\n<h3>Click the links below to get sorted results</h3>\n<ul>\n<li><a href=\"/by_course_num\">Sort By Course Number</a></li>\n<li><a href=\"/by_instructor_name\">Sort By Instructor Name</a></li>\n<li><a href=\"/by_enrollment\">Sort By Enrollment</a></li>\n<li><a href=\"/by_course_quality\">Sort By Course Quality</a></li>\n<li><a href=\"/by_course_difficulty\">Sort By Course Difficulty</a></li>\n<li><a href=\"/by_instructor_quality\">Sort By Instructor Quality</a></li>\n</ul>\n<h3>Enter a Course Number or an Instructor Name below to search aggregated result</h3>\n<form>\n<input type=\"text\" name=\"search\" placeholder=\"Search...\">\n<input type=\"submit\" value=\"Submit\">\n</form>\n";
+//            char* postfix = "</body></html>\0";
             
             /*********************************
              *     Getting Table Contents
              *********************************/
-            node* list = read_file();
-            char* table = malloc(100000);
-            table = get_table(list);
-            
-//            char* link = NULL;
-//            char* search = NULL;
+//            node* list = read_file();
+//            char* table = malloc(100000);
+//            table = get_table(list);
 //            
-//            bool is_search = identify_request(request, "search=");
-//            if (is_search) {
-//                search = get_search_target(request);
-//                printf("User is searching for: %s", search);
-//                for (int i = 0; i < strlen(search); i++) toupper(search[i]);
+//            
+//            char* link = malloc(25);
+//            link = get_sortkey(request);
+//            char* search = malloc(200);
+//            search = get_searchkey(request);
+//            
+//            if(strcmp(link, "by_course_num") == 0) {
+//                list = sort(list, cmp_course_num);
+//                table = get_table(list);
+//            } else if(strcmp(link, "by_instructor_name") == 0) {
+//                list = sort(list, cmp_instructor_name);
+//                table = get_table(list);
+//            } else if(strcmp(link, "by_enrollment") == 0) {
+//                list = sort(list, compare_enrollment);
+//                table = get_table(list);
+//            } else if (strcmp(link, "by_course_quality") == 0) {
+//                list = sort(list, compare_course_quality);
+//                table = get_table(list);
+//            } else if (strcmp(link, "by_course_difficulty") == 0) {
+//                list = sort(list, compare_course_difficulty);
+//                table = get_table(list);
+//            } else if (strcmp(link, "by_instructor_quality") == 0) {
+//                list = sort(list, compare_instructor_quality);
+//                table = get_table(list);
+//            }
+//            
+////            table = get_search_result(list, search);
+//            if(strlen(search) > 0) {
+//                printf("The search key is %s\n", search);
 //                table = get_search_result(list, search);
-//            } else {
-//                link = get_link_target(request);
-//                printf("User wants sorting by: %s", link);
-//                if (strcmp(link, "by_course_num HTTP/1.1") == 0) {
-//                    printf("Enter1\n");
-//                    list = sort(list, cmp_course_num);
-//                    table = get_table(list);
-//                } else if (strcmp(link, "by_instructor_name HTTP/1.1") == 0) {
-//                    printf("Enter2\n");
-//                    list = sort(list, cmp_instructor_name);
-//                    table = get_table(list);
-//                } else if (strcmp(link, "by_enrollment HTTP/1.1") == 0) {
-//                    printf("Enter3\n");
-//                    list = sort(list, compare_enrollment);
-//                    table = get_table(list);
-//                } else if (strcmp(link, "by_course_quality HTTP/1.1") == 0) {
-//                    printf("Enter4\n");
-//                    list = sort(list, compare_course_quality);
-//                    table = get_table(list);
-//                } else if (strcmp(link, "by_course_difficulty HTTP/1.1") == 0) {
-//                    printf("Enter5\n");
-//                    list = sort(list, compare_course_difficulty);
-//                    table = get_table(list);
-//                } else if (strcmp(link, "by_instructor_quality HTTP/1.1") == 0) {
-//                    printf("Enter6\n");
-//                    list = sort(list, compare_instructor_quality);
-//                    table = get_table(list);
-//                }
 //            }
-            
-            
-            char* link = malloc(25);
-            link = get_sortkey(request);
-            char* search = malloc(200);
-            search = get_searchkey(request);
-            
-            if(strcmp(link, "by_course_num") == 0) {
-                list = sort(list, cmp_course_num);
-                table = get_table(list);
-            } else if(strcmp(link, "by_instructor_name") == 0) {
-                list = sort(list, cmp_instructor_name);
-                table = get_table(list);
-            } else if(strcmp(link, "by_enrollment") == 0) {
-                list = sort(list, compare_enrollment);
-                table = get_table(list);
-            } else if (strcmp(link, "by_course_quality") == 0) {
-                list = sort(list, compare_course_quality);
-                table = get_table(list);
-            } else if (strcmp(link, "by_course_difficulty") == 0) {
-                list = sort(list, compare_course_difficulty);
-                table = get_table(list);
-            } else if (strcmp(link, "by_instructor_quality") == 0) {
-                list = sort(list, compare_instructor_quality);
-                table = get_table(list);
-            }
-            
-//            table = get_search_result(list, search);
-            if(strlen(search) > 0) {
-                printf("The search key is %s\n", search);
-                table = get_search_result(list, search);
-            }
-
-            
-//            printf("The search key is %s\n", search);
-            
-            strcpy(reply, prefix);
-            strcat(reply, table);
-            strcat(reply, postfix);
-            
-            /*******************************
-             *   FIND START OF HTTP/1.1
-             *******************************/
-//            for (int k = 0; k < strlen(reply); k++) {
-//                char substr[9];
-//                strncpy(substr, reply, 8);
-//                if (strcmp(substr, "HTTP/1.1") == 0) break;
-//                reply++;
-//            }
-            
-            send(fd, reply, strlen(reply), 0);
-            free(link);
-            free(reply);
-            close(fd);
-            printf("Server closed connection\n");
+//
+//            
+////            printf("The search key is %s\n", search);
+//            
+//            strcpy(reply, prefix);
+//            strcat(reply, table);
+//            strcat(reply, postfix);
+//            
+//            /*******************************
+//             *   FIND START OF HTTP/1.1
+//             *******************************/
+////            for (int k = 0; k < strlen(reply); k++) {
+////                char substr[9];
+////                strncpy(substr, reply, 8);
+////                if (strcmp(substr, "HTTP/1.1") == 0) break;
+////                reply++;
+////            }
+//            
+//            send(fd, reply, strlen(reply), 0);
+//            free(link);
+//            free(reply);
+//            close(fd);
+//            printf("Server closed connection\n");
         }
     }
     
     close(sock);
     printf("Server shutting down\n");
+    
+    for(int i = 0; i < thread_list->size; i++) {
+        void* r;
+        pthread_join(thread_list->value + i, &r);
+    }
     
     return 0;
 }
