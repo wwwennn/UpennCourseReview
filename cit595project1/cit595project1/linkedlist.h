@@ -53,21 +53,21 @@ int compare_course_quality(void* s, void* t) {
     node* s_node = (node*)s;
     node* t_node = (node*)t;
     
-    return (int)(s_node->value->course_quality - t_node->value->course_quality);
+    return (double)(s_node->value->course_quality - t_node->value->course_quality);
 }
 
 int compare_course_difficulty(void* s, void* t) {
     node* s_node = (node*)s;
     node* t_node = (node*)t;
     
-    return (int)(s_node->value->course_difficulty - t_node->value->course_difficulty);
+    return (double)(s_node->value->course_difficulty - t_node->value->course_difficulty);
 }
 
 int compare_instructor_quality(void* s, void* t) {
     node* s_node = (node*)s;
     node* t_node = (node*)t;
     
-    return (int)(s_node->value->instructor_quality - t_node->value->instructor_quality);
+    return (double)(s_node->value->instructor_quality - t_node->value->instructor_quality);
 }
 
 
