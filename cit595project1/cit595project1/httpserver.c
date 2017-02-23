@@ -48,6 +48,9 @@ void* handle_request(void* p) {
     search = get_searchkey(info->request);
     
     if(strcmp(link, "by_course_num") == 0) {
+//        printf("I'll be back in 3 seconds...\n\n");
+//        sleep(3);
+//        printf("I'm back!\n");
         list = sort(list, cmp_course_num);
         table = get_table(list);
     } else if(strcmp(link, "by_instructor_name") == 0) {

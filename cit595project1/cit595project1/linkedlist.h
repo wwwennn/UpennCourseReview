@@ -29,46 +29,46 @@ struct Node {
 };
 
 // define the compare function
-int cmp_course_num(void* s, void* t) {
+double cmp_course_num(void* s, void* t) {
     node* s_node = (node*)s;
     node* t_node = (node*)t;
     
     return strcmp(s_node->value->course_num, t_node->value->course_num);
 }
 
-int cmp_instructor_name(void* s, void* t) {
+double cmp_instructor_name(void* s, void* t) {
     node* s_node = (node*)s;
     node* t_node = (node*)t;
     
     return strcmp(s_node->value->instructor_name, t_node->value->instructor_name);
 }
 
-int compare_enrollment(void* s, void* t) {
+double compare_enrollment(void* s, void* t) {
     node* s_node = (node*)s;
     node* t_node = (node*)t;
     
     return s_node->value->enrollment - t_node->value->enrollment;
 }
 
-int compare_course_quality(void* s, void* t) {
+double compare_course_quality(void* s, void* t) {
     node* s_node = (node*)s;
     node* t_node = (node*)t;
     
-    return (double)(s_node->value->course_quality - t_node->value->course_quality);
+    return s_node->value->course_quality - t_node->value->course_quality;
 }
 
-int compare_course_difficulty(void* s, void* t) {
+double compare_course_difficulty(void* s, void* t) {
     node* s_node = (node*)s;
     node* t_node = (node*)t;
     
-    return (double)(s_node->value->course_difficulty - t_node->value->course_difficulty);
+    return s_node->value->course_difficulty - t_node->value->course_difficulty;
 }
 
-int compare_instructor_quality(void* s, void* t) {
+double compare_instructor_quality(void* s, void* t) {
     node* s_node = (node*)s;
     node* t_node = (node*)t;
     
-    return (double)(s_node->value->instructor_quality - t_node->value->instructor_quality);
+    return s_node->value->instructor_quality - t_node->value->instructor_quality;
 }
 
 
@@ -135,11 +135,7 @@ void print_list(node* head) {
     }
 }
 
-node* sort(node* head, int (*compare)(void*, void*)) {
-//    sleep(5);
-    printf("I'll be back in 10 seconds...\n\n");
-    sleep(3);
-    printf("I'm back!");
+node* sort(node* head, double (*compare)(void*, void*)) {
     if(head == NULL || head->next == NULL) return head;
     
     node* head1 = head;
