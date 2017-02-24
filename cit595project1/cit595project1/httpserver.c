@@ -5,6 +5,8 @@
  http://www.binarii.com/files/papers/c_sockets.txt
  */
 
+// TODO: add a function to free linkedlist
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -25,6 +27,18 @@ typedef struct {
     int fd;
     char request[1024];
 } server_info;
+
+typedef struct {
+    int port_number;
+    char* input;
+} server_params;
+
+void* user_input(void* p) {
+    char* input = (char*)p;
+    printf("You can enter 'q' to terminate the sever\n");
+    scanf("%s", input);
+    return NULL;
+}
 
 void* handle_request(void* p) {
     server_info* info = (server_info*) p;
@@ -70,14 +84,12 @@ void* handle_request(void* p) {
         table = get_table(list);
     }
     
-    //            table = get_search_result(list, search);
+
     if(strlen(search) > 0) {
         printf("The search key is %s\n", search);
         table = get_search_result(list, search);
     }
     
-    
-    //            printf("The search key is %s\n", search);
     
     double average_quality = average_instructor_quality(list);
     char number[100];
@@ -88,27 +100,22 @@ void* handle_request(void* p) {
     strcat(reply, table);
     strcat(reply, postfix);
     
-    /*******************************
-     *   FIND START OF HTTP/1.1
-     *******************************/
-    //            for (int k = 0; k < strlen(reply); k++) {
-    //                char substr[9];
-    //                strncpy(substr, reply, 8);
-    //                if (strcmp(substr, "HTTP/1.1") == 0) break;
-    //                reply++;
-    //            }
     
     send(info->fd, reply, strlen(reply), 0);
     free(link);
+    free(table);
+    free(search);
     free(reply);
     close(info->fd);
     printf("Server closed connection\n");
     return NULL;
 }
 
-int start_server(int PORT_NUMBER)
+void* start_server(void* p)
 {
     
+//    int* PORT_NUMBER = (int*) p;
+    server_params* params = (server_params*)p;
     /******************************************************************/
     struct sockaddr_in server_addr,client_addr;
     int sock;
@@ -121,7 +128,7 @@ int start_server(int PORT_NUMBER)
         perror("Setsockopt");
         exit(1);
     }
-    server_addr.sin_port = htons(PORT_NUMBER);
+    server_addr.sin_port = htons(params->port_number);
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = INADDR_ANY;
     bzero(&(server_addr.sin_zero),8);
@@ -133,7 +140,7 @@ int start_server(int PORT_NUMBER)
         perror("Listen");
         exit(1);
     }
-    printf("\nServer configured to listen on port %d\n", PORT_NUMBER);
+    printf("\nServer configured to listen on port %d\n", params->port_number);
     fflush(stdout);
     arraylist* thread_list = al_initialize(5);
     
@@ -152,20 +159,16 @@ int start_server(int PORT_NUMBER)
             server_info* info = malloc(sizeof(server_info));
             info->fd = fd;
             
-            
-//            char request[1024];
-//            int bytes_received = recv(fd,request,1024,0);
             int bytes_received = recv(fd,info->request,1024,0);
             info->request[bytes_received] = '\0';
             printf("This is the incoming request:\n%s\n", info->request);
             
-
-//            info->request = request;
             
             pthread_t* t = malloc(sizeof(pthread_t));
             pthread_create(t, NULL, handle_request, info);
             al_add(thread_list, t);
             
+<<<<<<< HEAD
 //            /*********************************
 //             *   Prepare Prefix and Postfix
 //             *********************************/
@@ -235,6 +238,9 @@ int start_server(int PORT_NUMBER)
 //            close(fd);
 //            printf("Server closed connection\n");
               
+=======
+            if(strcmp(params->input, "q") == 0) break;
+>>>>>>> a6f4043043896431b8cac63fa2407ada38303dfe
         }
     }
     
@@ -265,6 +271,19 @@ int main(int argc, char *argv[])
         exit(-1);
     }
     
-    start_server(port_number);
+    char* input = malloc(sizeof(char) * 2);
+    server_params* params = malloc(sizeof(server_params));
+    params->port_number = port_number;
+    params->input = input;
+    pthread_t t1, t2;
+    pthread_create(&t1, NULL, user_input, input);
+    pthread_create(&t2, NULL, start_server, params);
+    void* r1;
+    void* r2;
+    pthread_join(t1, &r1);
+    pthread_join(t2, &r2);
+    if(input != NULL) free(input);
+    if(params != NULL) free(params);
+//    start_server(&port_number);
 }
 
