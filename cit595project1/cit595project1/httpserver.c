@@ -168,13 +168,13 @@ void* start_server(void* p)
             pthread_create(t, NULL, handle_request, info);
             al_add(thread_list, t);
             
-<<<<<<< HEAD
 //            /*********************************
 //             *   Prepare Prefix and Postfix
 //             *********************************/
 //            char* reply = malloc(105000);
 //            char* prefix = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n<html><head><title>Couese Evaluation Information</title></head>\n<body>\n<h3>Click the links below to get sorted results</h3>\n<ul>\n<li><a href=\"/by_course_num\">Sort By Course Number</a></li>\n<li><a href=\"/by_instructor_name\">Sort By Instructor Name</a></li>\n<li><a href=\"/by_enrollment\">Sort By Enrollment</a></li>\n<li><a href=\"/by_course_quality\">Sort By Course Quality</a></li>\n<li><a href=\"/by_course_difficulty\">Sort By Course Difficulty</a></li>\n<li><a href=\"/by_instructor_quality\">Sort By Instructor Quality</a></li>\n</ul>\n<h3>Enter a Course Number or an Instructor Name below to search aggregated result</h3>\n<form>\n<input type=\"text\" name=\"search\" placeholder=\"Search...\">\n<input type=\"submit\" value=\"Submit\">\n</form>\n";
 //            char* postfix = "</body></html>\0";
+            
             
             /*********************************
              *     Getting Table Contents
@@ -238,9 +238,8 @@ void* start_server(void* p)
 //            close(fd);
 //            printf("Server closed connection\n");
               
-=======
+
             if(strcmp(params->input, "q") == 0) break;
->>>>>>> a6f4043043896431b8cac63fa2407ada38303dfe
         }
     }
     

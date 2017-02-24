@@ -205,4 +205,17 @@ double average_instructor_quality(node* head) {
     return total / count;
 }
 
+void free_list(node* list) {
+    if (list != NULL) {
+        node* runner = list;
+        while (runner != NULL) {
+            free(runner->value->course_num);
+            free(runner->value->instructor_name);
+            node* next = runner->next;
+            free(runner);
+            runner = next;
+        }
+    }
+}
+
 
