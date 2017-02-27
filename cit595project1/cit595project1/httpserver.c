@@ -47,6 +47,7 @@ void* handle_request(void* p) {
      *********************************/
     char* reply = malloc(105000);
     char* prefix = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n<html><head><title>Couese Evaluation Information</title></head>\n<body>\n<h3>Click the links below to get sorted results</h3>\n<ul>\n<li><a href=\"/by_course_num\">Sort By Course Number</a></li>\n<li><a href=\"/by_instructor_name\">Sort By Instructor Name</a></li>\n<li><a href=\"/by_enrollment\">Sort By Enrollment</a></li>\n<li><a href=\"/by_course_quality\">Sort By Course Quality</a></li>\n<li><a href=\"/by_course_difficulty\">Sort By Course Difficulty</a></li>\n<li><a href=\"/by_instructor_quality\">Sort By Instructor Quality</a></li>\n</ul>\n<h3>Average Instructor Quality: ";
+    char* min_course_difficulty = "</h3>\n<h3>Minimum Course Difficulty:";
     char* search_box = "</h3>\n<h3>Enter a Course Number or an Instructor Name below to search aggregated result</h3>\n<form>\n<input type=\"text\" name=\"search\" placeholder=\"Search...\">\n<input type=\"submit\" value=\"Submit\">\n</form>\n";
     char* postfix = "</body></html>\0";
     
@@ -55,6 +56,8 @@ void* handle_request(void* p) {
     char* table = malloc(100000);
     table = get_table(list);
     
+    list = sort(list, compare_course_difficulty);
+    double min_difficulty = list->value->course_difficulty;
     
     char* link = malloc(25);
     link = get_sortkey(info->request);
@@ -92,10 +95,15 @@ void* handle_request(void* p) {
     
     
     double average_quality = average_instructor_quality(list);
-    char number[100];
-    sprintf(number, "%.2f", average_quality);
+    char number1[100];
+    char number2[100];
+    sprintf(number1, "%.2f", average_quality);
+    sprintf(number2, "%.2f", min_difficulty);
+    
     strcpy(reply, prefix);
-    strcat(reply, number);
+    strcat(reply, number1);
+    strcat(reply, min_course_difficulty);
+    strcat(reply, number2);
     strcat(reply, search_box);
     strcat(reply, table);
     strcat(reply, postfix);
